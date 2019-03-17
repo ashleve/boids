@@ -1,4 +1,4 @@
-import math
+from Vector import Vector2d
 from pyglet.gl import (
     glPushMatrix, glPopMatrix, glBegin, glEnd, glColor3f,
     glVertex2f, glTranslatef, glRotatef,
@@ -14,9 +14,8 @@ from pyglet.gl import (
 
 class Boid():
 
-
     def __init__(self, x, y):
-        self.position = [x, y]
+        self.position = Vector2d(x,y)
         self.velocity = [2.0, 2.0]
         self.acceleration = [0.0, 0.0]
         self.size = 5
@@ -26,14 +25,16 @@ class Boid():
 
     def find_neighbours(self, boids, radius):
         neighbours = []
-        for b in boids
-        dist = b.
+        for b in boids:
+            dist = b.distance(position)
+            if dist <= radius:
+                neighbours.append(b)
         return neighbours
 
 
     def draw(self):
         glPushMatrix()
-        glTranslatef(self.position[0], self.position[1], 0.0)
+        glTranslatef(self.position.x, self.position.y, 0.0)
 
         glRotatef(self.velocity[0], 0.0, 0.0, -1.0)
         # glRotatef(math.degrees(math.atan2(self.velocity[0], self.velocity[1])), 0.0, 0.0, -1.0)
@@ -52,8 +53,7 @@ class Boid():
 
 
     def update(self):
-        self.position[0] += 1
-        self.position[1] += 1
+        self.position += Vector2d(1,1)
         self.velocity[0] += 3
         self.velocity[1] += 0.1
 
