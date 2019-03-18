@@ -1,7 +1,7 @@
 import pyglet
 from random import randint
 import time
-import Boid
+from Boid import Boid
 
 from pyglet.gl import (
     glPushMatrix, glPopMatrix, glBegin, glEnd, glColor3f,
@@ -15,7 +15,6 @@ from pyglet.gl import (
     GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT)
 
 
-game_window = pyglet.window.Window(800, 600)
 
 score_label = pyglet.text.Label(text="Score: 0", x=10, y=575)
 level_label = pyglet.text.Label(
@@ -27,10 +26,11 @@ level_label = pyglet.text.Label(
 
 # image = pyglet.resource.image('pika.jpg')
 
+bounds = [800, 600]
+game_window = pyglet.window.Window(*bounds)
 
+boids = [Boid(bounds) for i in range(100)]
 
-boids = [Boid.Boid(randint(0, 800), randint(0, 600)) for i in range(100)]
-b = Boid.Boid(100, 200)
 
 @game_window.event
 def on_draw():
@@ -41,19 +41,13 @@ def on_draw():
     level_label.draw()
     score_label.draw()
 
-    # pyglet.graphics.draw_indexed(2, pyglet.gl.GL_POINTS,
-    #                              [0, 1],
-    #                              ('v2i', (100, 105, 300, 350)))
-
     for b in boids:
-        b.update()
+        b.update(boids)
         b.draw()
 
 
 def eloelo(dt):
-    a = 2
-    # print(dt)
-
+    pass
 
 if __name__ == '__main__':
     # glEnable(GL_BLEND)

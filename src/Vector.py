@@ -2,7 +2,7 @@ import math
 from random import randint
 
 
-class Vector2d():
+class Point():
 
 	def __init__(self, x=0, y=0):
 		self.x = x
@@ -16,8 +16,8 @@ class Vector2d():
 		self.y = randint(0, y_range)
 
 
-	def __add__(self, vector):
-		return Vector2d(self.x + vector.x, self.y + vector.y)
+	def __add__(self, vector):		
+		return Point(self.x + vector.x, self.y + vector.y)
 
 
 	def __iadd__(self, vector):
@@ -26,12 +26,32 @@ class Vector2d():
 		return self
 
 
+	def __sub__(self, vector):		
+		return Point(self.x - vector.x, self.y - vector.y)
+
+
+	def __truediv__(self, divider):	
+		if type(divider) == Point:
+			return Point(self.x / divider.x, self.y / divider.y)
+		else:
+			return Point(self.x / divider, self.y / divider)
+
+
+	def __itruediv__(self, divider):
+		if type(divider) == Point:
+			self.x /= divider.x
+			self.y /= divider.y
+		else:
+			self = self / divider
+		return self
+
+
 	def length(self):
 		return math.sqrt(self.x**2 + self.y**2)
 
 
 	def distance(self, vector):
-		dist = sqrt((self.x - vector.x)**2 + (self.y - vector.y)**2)
+		dist = math.sqrt((self.x - vector.x)**2 + (self.y - vector.y)**2)
 		return dist
 
 
