@@ -30,20 +30,23 @@ class Point():
 		return Point(self.x - vector.x, self.y - vector.y)
 
 
+	def __isub__(self, vector):
+		self.x -= vector.x
+		self.y -= vector.y
+		return self
+
+
+
 	def __truediv__(self, divider):	
 		if type(divider) == Point:
 			return Point(self.x / divider.x, self.y / divider.y)
-		else:
-			return Point(self.x / divider, self.y / divider)
+		return Point(self.x / divider, self.y / divider)
 
 
-	def __itruediv__(self, divider):
-		if type(divider) == Point:
-			self.x /= divider.x
-			self.y /= divider.y
-		else:
-			self = self / divider
-		return self
+	# def __itruediv__(self, divider):
+	# 	if type(divider) == Point:
+	# 		return Point(self.x / divider.x, self.y / divider.y)
+	# 	return Point(self.x / divider, self.y / divider)
 
 
 	def length(self):
@@ -53,6 +56,17 @@ class Point():
 	def distance(self, vector):
 		dist = math.sqrt((self.x - vector.x)**2 + (self.y - vector.y)**2)
 		return dist
+
+
+	def limit(self, value):
+		if self.x > value:
+			self.x = value
+		elif self.x < -value:
+			self.x = -value
+		if self.y > value:
+			self.y = value	
+		elif self.y < -value:
+			self.y = -value
 
 
 	def __getitem__(self, key):

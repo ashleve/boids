@@ -53,6 +53,17 @@ class Boid():
         return Point(x,y)
 
 
+    def edges(self):
+        if self.position.x > self.bounds.x:
+            self.position.x = 0
+        elif self.position.x < 0:
+            self.position.x = self.bounds.x
+        if self.position.y > self.bounds.y:
+            self.position.y = 0
+        elif self.position.y < 0:
+            self.position.y = self.bounds.y
+
+
     def alignment(self, boids):
         perception_radius = 50
         neighbours = self.find_neighbours(boids, perception_radius)
@@ -68,10 +79,14 @@ class Boid():
         return avg - self.velocity
 
 
+
     def update(self, boids):
         self.position += self.velocity
         self.velocity += self.acceleration
         self.acceleration = self.alignment(boids)
+        self.acceleration.limit(0.1)
+        self.velocity.limit(3)
+        self.edges()
 
 
 

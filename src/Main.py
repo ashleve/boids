@@ -15,7 +15,6 @@ from pyglet.gl import (
     GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT)
 
 
-
 score_label = pyglet.text.Label(text="Score: 0", x=10, y=575)
 level_label = pyglet.text.Label(
     text="My Amazing Simulation",
@@ -26,7 +25,7 @@ level_label = pyglet.text.Label(
 
 # image = pyglet.resource.image('pika.jpg')
 
-bounds = [800, 600]
+bounds = [1000, 600]
 game_window = pyglet.window.Window(*bounds)
 
 boids = [Boid(bounds) for i in range(100)]
@@ -49,9 +48,9 @@ def on_draw():
 def eloelo(dt):
     pass
 
+
 if __name__ == '__main__':
     # glEnable(GL_BLEND)
     # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     pyglet.clock.schedule(eloelo)
     pyglet.app.run()
-
