@@ -1,11 +1,11 @@
 from Vector import Point
 import random
-from math import sqrt, sin, cos
+import math
 
 from pyglet.gl import (
     glPushMatrix, glPopMatrix, glBegin, glEnd, glColor3f,
     glVertex2f, glTranslatef, glRotatef,
-    GL_LINE_LOOP, GL_LINES, GL_TRIANGLES)
+    GL_LINE_LOOP, GL_LINES, GL_TRIANGLES, GL_POLYGON)
 
 
 from pyglet.gl import (
@@ -19,15 +19,15 @@ class Boid():
 
     def __init__(self, bounds):
         self.bounds = Point(*bounds)
-        self.position = self.center() + self.rand_vec(200) + self.rand_vec(100) + self.rand_vec(50) 
         # self.position = self.center()
+        # self.position = self.center() + Point().randomize_dir(400)
+        self.position = Point().randomize(*bounds)
 
-        self.velocity = self.rand_vec(3)
-        # self.acceleration = self.rand_vec(length=0.1)
+        self.velocity = Point().randomize_dir(3)
         self.acceleration = Point()
 
-        self.size = 5
-        self.color = [1.0, 1.0, 1.0]
+        self.size = 7
+        self.color = [random.uniform(0,1), random.uniform(0,1), 1.0]
 
 
     def center(self):
@@ -45,12 +45,6 @@ class Boid():
                     neighbours.append(b)
         return neighbours
 
-
-    def rand_vec(self, length):
-        a = random.uniform(0, 2*3.1415)
-        x = length*sin(a)
-        y = length*cos(a)
-        return Point(x,y)
 
 
     def edges(self):
@@ -80,12 +74,13 @@ class Boid():
 
 
 
+
     def update(self, boids):
         self.position += self.velocity
         self.velocity += self.acceleration
         self.acceleration = self.alignment(boids)
-        self.acceleration.limit(0.1)
-        self.velocity.limit(3)
+        self.acceleration.set_magnitude(0.6)
+        self.velocity.set_magnitude(5)
         self.edges()
 
 
@@ -98,15 +93,17 @@ class Boid():
         glPushMatrix()
         glTranslatef(self.position.x, self.position.y, 0.0)
 
-        glRotatef(self.velocity[0], 0.0, 0.0, -1.0)
-        # glRotatef(math.degrees(math.atan2(self.velocity[0], self.velocity[1])), 0.0, 0.0, -1.0)
+        # glRotatef(self.velocity.x, 0.0, 0.0, -1.0)
+        # print(math.atan2(self.velocity.x, self.velocity.y))
+        glRotatef(math.degrees(math.atan2(self.velocity.x, self.velocity.y)), 0.0, 0.0, -1.0)
 
-        glBegin(GL_TRIANGLES)
-        # glColor3f(*self.color)
+        glBegin(GL_POLYGON)
+        glColor3f(*self.color)
 
-        glVertex2f(-self.size, 0.0)
+
         glVertex2f(self.size, 0.0)
-        glVertex2f(0.0, self.size * 3.0)
+        glVertex2f(-self.size , 0.0)
+        glVertex2f(0.0 , self.size * 3.0)
 
 
         glEnd()

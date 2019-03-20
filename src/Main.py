@@ -15,20 +15,25 @@ from pyglet.gl import (
     GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_COLOR_BUFFER_BIT)
 
 
-score_label = pyglet.text.Label(text="Score: 0", x=10, y=575)
-level_label = pyglet.text.Label(
-    text="My Amazing Simulation",
-    x=400, y=575,
-    anchor_x='center'
-)
 
 
 # image = pyglet.resource.image('pika.jpg')
 
-bounds = [1000, 600]
+bounds = [1200, 600]
 game_window = pyglet.window.Window(*bounds)
 
-boids = [Boid(bounds) for i in range(100)]
+score_label = pyglet.text.Label(
+    text="Score: 0", 
+    x=10, y=575
+)
+level_label = pyglet.text.Label(
+    text="My Amazing Simulation",
+    x=bounds[0]/2, y=bounds[1]-25,
+    anchor_x='center'
+)
+
+
+boids = [Boid(bounds) for i in range(150)]
 
 
 @game_window.event
@@ -41,16 +46,16 @@ def on_draw():
     score_label.draw()
 
     for b in boids:
-        b.update(boids)
         b.draw()
 
 
-def eloelo(dt):
-    pass
+def update(dt):
+    for b in boids:
+        b.update(boids)
 
 
 if __name__ == '__main__':
     # glEnable(GL_BLEND)
     # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    pyglet.clock.schedule(eloelo)
+    pyglet.clock.schedule(update)
     pyglet.app.run()

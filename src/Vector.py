@@ -1,5 +1,5 @@
 import math
-from random import randint
+import random
 
 
 class Point():
@@ -12,8 +12,16 @@ class Point():
 	def randomize(self, x_range=100, y_range=100):
 		if x_range < 0 or y_range <0:
 			raise Exception("Invalid range")
-		self.x = randint(0, x_range)
-		self.y = randint(0, y_range)
+		self.x = random.randint(0, x_range)
+		self.y = random.randint(0, y_range)
+		return self
+
+
+	def randomize_dir(self, length=10):
+		a = random.uniform(0, 2*3.1415)
+		self.x = length*math.sin(a)
+		self.y = length*math.cos(a)
+		return self
 
 
 	def __add__(self, vector):		
@@ -36,21 +44,22 @@ class Point():
 		return self
 
 
-
 	def __truediv__(self, divider):	
 		if type(divider) == Point:
 			return Point(self.x / divider.x, self.y / divider.y)
 		return Point(self.x / divider, self.y / divider)
 
 
-	# def __itruediv__(self, divider):
-	# 	if type(divider) == Point:
-	# 		return Point(self.x / divider.x, self.y / divider.y)
-	# 	return Point(self.x / divider, self.y / divider)
-
-
-	def length(self):
+	def magnitude(self):
 		return math.sqrt(self.x**2 + self.y**2)
+
+
+	def set_magnitude(self, new_mag):
+		mag = self.magnitude()
+		if mag == 0:
+			return
+		self.x = self.x * new_mag / self.magnitude()
+		self.y = self.y * new_mag / self.magnitude()
 
 
 	def distance(self, vector):
