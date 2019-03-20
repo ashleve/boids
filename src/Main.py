@@ -17,8 +17,6 @@ from pyglet.gl import (
 
 
 
-# image = pyglet.resource.image('pika.jpg')
-
 bounds = [1200, 600]
 game_window = pyglet.window.Window(*bounds)
 
@@ -33,12 +31,12 @@ level_label = pyglet.text.Label(
 )
 
 
-boids = [Boid(bounds) for i in range(150)]
+boids = [Boid(bounds) for i in range(100)]
 
 
 @game_window.event
 def on_draw():
-    glClearColor(0.1, 0.1, 0.1, 1.0)
+    glClearColor(0.0, 0.0, 0.1, 1.0)
     game_window.clear()
     glLoadIdentity()
 

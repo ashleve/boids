@@ -26,8 +26,9 @@ class Boid():
         self.velocity = Point().randomize_dir(3)
         self.acceleration = Point()
 
-        self.size = 7
-        self.color = [random.uniform(0,1), random.uniform(0,1), 1.0]
+        self.size = 5
+        self.color = [random.uniform(0,1), 1,random.uniform(0,1)]
+        self.max_speed = 3
 
 
     def center(self):
@@ -70,17 +71,34 @@ class Boid():
             avg += b.velocity
         avg /= len(neighbours)
 
-        return avg - self.velocity
+        steering = avg - self.velocity
+        return steering
 
+
+    def cohesion(self, boids):
+        perception_radius = 100
+        neighbours = self.find_neighbours(boids, perception_radius)
+        avg = Point()
+
+        if len(neighbours) == 0:
+            return avg
+
+        for b in neighbours:
+            avg += b.position
+        avg /= len(neighbours)
+
+        steering = avg - self.position
+        return steering
+      
 
 
 
     def update(self, boids):
         self.position += self.velocity
         self.velocity += self.acceleration
-        self.acceleration = self.alignment(boids)
-        self.acceleration.set_magnitude(0.6)
-        self.velocity.set_magnitude(5)
+        self.acceleration = self.cohesion(boids) + self.alignment(boids)
+        self.acceleration.set_magnitude(0.3)
+        self.velocity.set_magnitude(self.max_speed)
         self.edges()
 
 
@@ -93,8 +111,6 @@ class Boid():
         glPushMatrix()
         glTranslatef(self.position.x, self.position.y, 0.0)
 
-        # glRotatef(self.velocity.x, 0.0, 0.0, -1.0)
-        # print(math.atan2(self.velocity.x, self.velocity.y))
         glRotatef(math.degrees(math.atan2(self.velocity.x, self.velocity.y)), 0.0, 0.0, -1.0)
 
         glBegin(GL_POLYGON)
