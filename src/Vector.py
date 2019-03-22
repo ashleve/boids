@@ -44,6 +44,15 @@ class Point():
 		return self
 
 
+	def __mul__(self, vector):		
+		if type(vector) == Point:
+			return Point(self.x * vector.x, self.y * vector.y)
+		return Point(self.x * vector, self.y * vector)
+
+
+	__rmul__ = __mul__
+
+
 	def __truediv__(self, divider):	
 		if type(divider) == Point:
 			return Point(self.x / divider.x, self.y / divider.y)

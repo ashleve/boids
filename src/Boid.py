@@ -23,12 +23,13 @@ class Boid():
         # self.position = self.center() + Point().randomize_dir(400)
         self.position = Point().randomize(*bounds)
 
-        self.velocity = Point().randomize_dir(3)
+        self.velocity = Point().randomize_dir(2)
         self.acceleration = Point()
 
-        self.size = 5
+        self.size = 6
         self.color = [random.uniform(0,1), 1,random.uniform(0,1)]
-        self.max_speed = 3
+        self.max_speed = 1.5
+        self.max_force = 0.2
 
 
     def center(self):
@@ -60,7 +61,7 @@ class Boid():
 
 
     def alignment(self, boids):
-        perception_radius = 50
+        perception_radius = 70
         neighbours = self.find_neighbours(boids, perception_radius)
         avg = Point()
 
@@ -72,11 +73,13 @@ class Boid():
         avg /= len(neighbours)
 
         steering = avg - self.velocity
+        steering.set_magnitude(self.max_force)
+        
         return steering
 
 
     def cohesion(self, boids):
-        perception_radius = 100
+        perception_radius = 150
         neighbours = self.find_neighbours(boids, perception_radius)
         avg = Point()
 
@@ -88,7 +91,31 @@ class Boid():
         avg /= len(neighbours)
 
         steering = avg - self.position
+        steering.set_magnitude(self.max_force)
         return steering
+
+
+    def separation(self, boids):
+        perception_radius = 50
+        steering = Point()
+
+        total = 0
+        for b in boids:
+            if b != self:
+                dist = b.position.distance(self.position)
+                if dist <= perception_radius:
+                    diff = self.position - b.position
+                    diff /= dist
+                    steering += diff
+                    total += 1
+
+        if total > 0:
+            steering /= total
+            steering -= self.velocity
+            # steering.limit(self.max_force)
+            steering.set_magnitude(self.max_force)
+        return steering
+
       
 
 
@@ -96,9 +123,13 @@ class Boid():
     def update(self, boids):
         self.position += self.velocity
         self.velocity += self.acceleration
-        self.acceleration = self.cohesion(boids) + self.alignment(boids)
-        self.acceleration.set_magnitude(0.3)
-        self.velocity.set_magnitude(self.max_speed)
+
+        self.acceleration = self.cohesion(boids)
+        self.acceleration += self.alignment(boids)
+        self.acceleration += self.separation(boids)
+        self.acceleration.set_magnitude(0.03)
+        # self.velocity.set_magnitude(self.max_speed)
+        self.velocity.limit(self.max_speed)
         self.edges()
 
 
@@ -113,7 +144,7 @@ class Boid():
 
         glRotatef(math.degrees(math.atan2(self.velocity.x, self.velocity.y)), 0.0, 0.0, -1.0)
 
-        glBegin(GL_POLYGON)
+        glBegin(GL_TRIANGLES)
         glColor3f(*self.color)
 
 
