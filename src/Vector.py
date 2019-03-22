@@ -66,14 +66,28 @@ class Point():
 	def set_magnitude(self, new_mag):
 		mag = self.magnitude()
 		if mag == 0:
-			return
-		self.x = self.x * new_mag / self.magnitude()
-		self.y = self.y * new_mag / self.magnitude()
+			return self
+		self.x = self.x * new_mag / mag
+		self.y = self.y * new_mag / mag
+		return self
+
+
+	def limit_magnitude(self, lim):
+		mag = self.magnitude()
+		if mag <= lim or mag == 0:
+			return self
+		self.x = self.x * lim / mag
+		self.y = self.y * lim / mag
+		return self
 
 
 	def distance(self, vector):
 		dist = math.sqrt((self.x - vector.x)**2 + (self.y - vector.y)**2)
 		return dist
+
+
+	def distance_squared(self, vector):
+		return (self.x - vector.x)**2 + (self.y - vector.y)**2
 
 
 	def limit(self, value):

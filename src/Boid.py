@@ -28,25 +28,14 @@ class Boid():
 
         self.size = 6
         self.color = [random.uniform(0,1), 1,random.uniform(0,1)]
-        self.max_speed = 1.5
-        self.max_force = 0.2
+        self.max_speed = 2
+        self.max_force = 0.02
 
 
     def center(self):
         x = self.bounds.x/2
         y = self.bounds.y/2
         return Point(x,y)
-
-
-    def find_neighbours(self, boids, radius):
-        neighbours = []
-        for b in boids:
-            if b != self:
-                dist = b.position.distance(self.position)
-                if dist <= radius:
-                    neighbours.append(b)
-        return neighbours
-
 
 
     def edges(self):
@@ -60,79 +49,91 @@ class Boid():
             self.position.y = self.bounds.y
 
 
-    def alignment(self, boids):
-        perception_radius = 70
-        neighbours = self.find_neighbours(boids, perception_radius)
-        avg = Point()
-
-        if len(neighbours) == 0:
-            return avg
-
-        for b in neighbours:
-            avg += b.velocity
-        avg /= len(neighbours)
-
-        steering = avg - self.velocity
-        steering.set_magnitude(self.max_force)
-        
-        return steering
-
-
-    def cohesion(self, boids):
-        perception_radius = 150
-        neighbours = self.find_neighbours(boids, perception_radius)
-        avg = Point()
-
-        if len(neighbours) == 0:
-            return avg
-
-        for b in neighbours:
-            avg += b.position
-        avg /= len(neighbours)
-
-        steering = avg - self.position
-        steering.set_magnitude(self.max_force)
-        return steering
-
-
-    def separation(self, boids):
-        perception_radius = 50
-        steering = Point()
-
-        total = 0
-        for b in boids:
-            if b != self:
-                dist = b.position.distance(self.position)
-                if dist <= perception_radius:
-                    diff = self.position - b.position
-                    diff /= dist
-                    steering += diff
-                    total += 1
-
-        if total > 0:
-            steering /= total
-            steering -= self.velocity
-            # steering.limit(self.max_force)
-            steering.set_magnitude(self.max_force)
-        return steering
-
-      
-
-
 
     def update(self, boids):
         self.position += self.velocity
         self.velocity += self.acceleration
 
-        self.acceleration = self.cohesion(boids)
-        self.acceleration += self.alignment(boids)
-        self.acceleration += self.separation(boids)
-        self.acceleration.set_magnitude(0.03)
-        # self.velocity.set_magnitude(self.max_speed)
-        self.velocity.limit(self.max_speed)
+        self.acceleration = self.calculate_acc(boids)
+        self.acceleration += self.boundaries()
+        self.velocity.limit_magnitude(self.max_speed)
         self.edges()
 
 
+
+
+    def calculate_acc(self, boids):
+        coh_radius = 100
+        sep_radius = 35
+        ali_radius = 50
+
+
+        acc = Point(0,0)
+        coh_force = Point(0,0)
+        sep_force = Point(0,0)
+        ali_force = Point(0,0)
+
+        it_coh = 0
+        it_sep = 0
+        it_ali = 0
+
+        for b in boids:
+
+            if b == self:
+                continue
+
+            dist = b.position.distance(self.position)
+            if dist < coh_radius:
+                coh_force += b.position
+                it_coh += 1
+            if dist < sep_radius:
+                diff = self.position - b.position
+                # diff /= (dist*dist)
+                sep_force += diff
+                it_sep += 1
+            if dist < ali_radius:
+                ali_force += b.velocity
+                it_ali += 1
+
+
+        #cohesion
+        if it_coh > 0:
+            coh_force /= it_coh
+            coh_force -= self.position
+            coh_force.set_magnitude(self.max_speed)
+            coh_force -= self.velocity
+            coh_force.limit_magnitude(self.max_force)
+
+        #separation
+        if it_sep > 0:
+            sep_force.set_magnitude(self.max_speed)
+            sep_force -= self.velocity
+            sep_force.limit_magnitude(self.max_force)
+
+        #alignment
+        if it_ali > 0:
+            ali_force.set_magnitude(self.max_speed)
+            ali_force -= self.velocity
+            ali_force.limit_magnitude(self.max_force)
+
+
+        acc = coh_force + sep_force + ali_force
+        return acc
+
+
+
+    def boundaries(self):
+        v = Point(0.0,0.0)
+        if self.position.x > self.bounds.x - 50:
+            v.x = -1
+        elif self.position.x < 0 + 50:
+            v.x = 1
+        if self.position.y > self.bounds.y - 50:
+            v.y = -1
+        elif self.position.y < 0 + 50:
+            v.y = 1
+        v.set_magnitude(1.5 * self.max_force)
+        return v
 
 
 

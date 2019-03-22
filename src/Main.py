@@ -17,7 +17,7 @@ from pyglet.gl import (
 
 
 
-bounds = [1000, 600]
+bounds = [800, 600]
 game_window = pyglet.window.Window(*bounds)
 
 score_label = pyglet.text.Label(
@@ -31,7 +31,7 @@ level_label = pyglet.text.Label(
 )
 
 
-boids = [Boid(bounds) for i in range(60)]
+boids = [Boid(bounds) for i in range(70)]
 
 
 @game_window.event
