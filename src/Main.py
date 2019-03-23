@@ -19,6 +19,7 @@ from pyglet.gl import (
 
 bounds = [1000, 600]
 game_window = pyglet.window.Window(*bounds)
+fps_display = pyglet.clock.ClockDisplay()
 
 score_label = pyglet.text.Label(
     text="Score: 0", 
@@ -31,7 +32,7 @@ level_label = pyglet.text.Label(
 )
 
 
-boids = [Boid(bounds) for i in range(70)]
+boids = [Boid(bounds) for i in range(90)]
 
 
 @game_window.event
@@ -42,6 +43,7 @@ def on_draw():
 
     level_label.draw()
     # score_label.draw()
+    fps_display.draw()
 
     for b in boids:
         b.draw()
@@ -51,9 +53,10 @@ def update(dt):
     for b in boids:
         b.update(boids)
 
-
 if __name__ == '__main__':
+    # input()
     # glEnable(GL_BLEND)
     # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    pyglet.clock.tick()
     pyglet.clock.schedule(update)
     pyglet.app.run()

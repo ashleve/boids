@@ -28,7 +28,7 @@ class Boid():
         self.velocity = Point().randomize_dir(self.max_speed)
         self.acceleration = Point(0,0)
 
-        self.size = 5
+        self.size = 6.5
         self.color = [random.uniform(0,1), random.uniform(0,1), 1.0]
 
 
