@@ -17,7 +17,7 @@ from pyglet.gl import (
 
 
 
-bounds = [800, 600]
+bounds = [1000, 600]
 game_window = pyglet.window.Window(*bounds)
 
 score_label = pyglet.text.Label(

@@ -7,7 +7,6 @@ from pyglet.gl import (
     glVertex2f, glTranslatef, glRotatef,
     GL_LINE_LOOP, GL_LINES, GL_TRIANGLES, GL_POLYGON)
 
-
 from pyglet.gl import (
     Config,
     glEnable, glBlendFunc, glLoadIdentity, glClearColor,
@@ -19,17 +18,18 @@ class Boid():
 
     def __init__(self, bounds):
         self.bounds = Point(*bounds)
-        # self.position = self.center()
-        # self.position = self.center() + Point().randomize_dir(400)
-        self.position = Point().randomize(*bounds)
+        self.position = self.center()
+        # self.position = self.center() + Point().randomize_dir(200)
+        # self.position = Point().randomize(*bounds)
 
-        self.velocity = Point().randomize_dir(2)
-        self.acceleration = Point()
-
-        self.size = 6
-        self.color = [random.uniform(0,1), 1,random.uniform(0,1)]
         self.max_speed = 2
         self.max_force = 0.02
+
+        self.velocity = Point().randomize_dir(self.max_speed)
+        self.acceleration = Point(0,0)
+
+        self.size = 5
+        self.color = [random.uniform(0,1), random.uniform(0,1), 1.0]
 
 
     def center(self):
@@ -49,6 +49,72 @@ class Boid():
             self.position.y = self.bounds.y
 
 
+    def boundaries(self):
+        v = Point(0.0,0.0)
+        if self.position.x > self.bounds.x - 50:
+            v.x = -1
+        elif self.position.x < 50:
+            v.x = 1
+        if self.position.y > self.bounds.y - 50:
+            v.y = -1
+        elif self.position.y < 50:
+            v.y = 1
+        v.set_magnitude(1.5 * self.max_force)
+        return v
+
+
+    def calculate_acc(self, boids):
+        coh_radius = 100**2
+        sep_radius = 50**2
+        ali_radius = 50**2
+
+
+        acc = Point(0,0)
+        coh_force = Point(0,0)
+        sep_force = Point(0,0)
+        ali_force = Point(0,0)
+
+        for b in boids:
+
+            if b == self:
+                continue
+
+            dist = b.position.distance_squared(self.position)
+
+            if dist < coh_radius:
+                coh_force += b.position - self.position
+
+            if dist < sep_radius and dist != 0:
+                diff = self.position - b.position
+                diff /= (dist**2)
+                sep_force += diff
+
+            if dist < ali_radius:
+                ali_force += b.velocity
+
+
+        #cohesion
+        if coh_force.magnitude() > 0:
+            coh_force.set_magnitude(self.max_speed)
+            coh_force -= self.velocity
+            coh_force.limit_magnitude(self.max_force)
+
+        #separation
+        if sep_force.magnitude() > 0:
+            sep_force.set_magnitude(self.max_speed)
+            sep_force -= self.velocity
+            sep_force.limit_magnitude(self.max_force)
+
+        #alignment
+        if ali_force.magnitude() > 0:
+            ali_force.set_magnitude(self.max_speed)
+            ali_force -= self.velocity
+            ali_force.limit_magnitude(self.max_force)
+
+
+        acc = coh_force + 2*sep_force + ali_force
+        return acc
+
 
     def update(self, boids):
         self.position += self.velocity
@@ -58,85 +124,6 @@ class Boid():
         self.acceleration += self.boundaries()
         self.velocity.limit_magnitude(self.max_speed)
         self.edges()
-
-
-
-
-    def calculate_acc(self, boids):
-        coh_radius = 100
-        sep_radius = 35
-        ali_radius = 50
-
-
-        acc = Point(0,0)
-        coh_force = Point(0,0)
-        sep_force = Point(0,0)
-        ali_force = Point(0,0)
-
-        it_coh = 0
-        it_sep = 0
-        it_ali = 0
-
-        for b in boids:
-
-            if b == self:
-                continue
-
-            dist = b.position.distance(self.position)
-            if dist < coh_radius:
-                coh_force += b.position
-                it_coh += 1
-            if dist < sep_radius:
-                diff = self.position - b.position
-                # diff /= (dist*dist)
-                sep_force += diff
-                it_sep += 1
-            if dist < ali_radius:
-                ali_force += b.velocity
-                it_ali += 1
-
-
-        #cohesion
-        if it_coh > 0:
-            coh_force /= it_coh
-            coh_force -= self.position
-            coh_force.set_magnitude(self.max_speed)
-            coh_force -= self.velocity
-            coh_force.limit_magnitude(self.max_force)
-
-        #separation
-        if it_sep > 0:
-            sep_force.set_magnitude(self.max_speed)
-            sep_force -= self.velocity
-            sep_force.limit_magnitude(self.max_force)
-
-        #alignment
-        if it_ali > 0:
-            ali_force.set_magnitude(self.max_speed)
-            ali_force -= self.velocity
-            ali_force.limit_magnitude(self.max_force)
-
-
-        acc = coh_force + sep_force + ali_force
-        return acc
-
-
-
-    def boundaries(self):
-        v = Point(0.0,0.0)
-        if self.position.x > self.bounds.x - 50:
-            v.x = -1
-        elif self.position.x < 0 + 50:
-            v.x = 1
-        if self.position.y > self.bounds.y - 50:
-            v.y = -1
-        elif self.position.y < 0 + 50:
-            v.y = 1
-        v.set_magnitude(1.5 * self.max_force)
-        return v
-
-
-
 
 
     def draw(self):
